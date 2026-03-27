@@ -13,3 +13,4 @@ redisvl
 pydantic
 pydantic-settings
 llama-index-storage-kvstore-redis
+llama-parse

@@ -28,8 +28,22 @@ active_documents = set()
 
 def ingest_pdf(file_path: str, filename: str):
     llm, embed_model = setup_llm_and_embeddings()
-    # Read PDF
-    reader = SimpleDirectoryReader(input_files=[file_path])
+    # Read PDF using LlamaParse for multimodal text, table, and image extraction
+    from llama_parse import LlamaParse
+    
+    llama_parse_api_key = os.getenv("LLAMA_CLOUD_API_KEY")
+    if llama_parse_api_key:
+        parser = LlamaParse(
+            api_key=llama_parse_api_key,
+            result_type="markdown",  # Converts images, charts, and tables into descriptive markdown
+            verbose=True
+        )
+        file_extractor = {".pdf": parser}
+        reader = SimpleDirectoryReader(input_files=[file_path], file_extractor=file_extractor)
+    else:
+        # Fallback to standard reader if no key provided
+        reader = SimpleDirectoryReader(input_files=[file_path])
+        
     documents = reader.load_data()
     
     # Give metadata to docs
